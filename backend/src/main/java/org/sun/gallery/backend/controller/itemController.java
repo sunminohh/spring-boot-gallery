@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.sun.gallery.backend.entity.Item;
 import org.sun.gallery.backend.repository.ItemRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -15,9 +14,8 @@ public class itemController {
     @Autowired
     ItemRepository  itemRepository;
     @GetMapping("/api/items")
-    List<Item> getItems() {
+    public List<Item> getItems() {
         List<Item> items = itemRepository.findAll();
-
         return items;
     }
 }

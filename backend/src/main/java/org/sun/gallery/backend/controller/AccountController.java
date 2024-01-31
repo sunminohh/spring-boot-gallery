@@ -1,9 +1,12 @@
 package org.sun.gallery.backend.controller;
 
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.sun.gallery.backend.entity.Member;
 import org.sun.gallery.backend.repository.MemberRepository;
 
@@ -23,6 +26,6 @@ public class AccountController {
             return member.getId();
         }
 
-        return  0;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }

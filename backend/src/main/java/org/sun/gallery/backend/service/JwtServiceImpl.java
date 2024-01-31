@@ -14,6 +14,7 @@ import java.util.Base64;
 public class JwtServiceImpl implements JwtService {
 
     private String secretKey = "abbci2ioadij@@@ai17a662###8139!!!18ausudahd178316738687687@@ad6g";
+
     {
         // Base64 인코딩 추가
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
@@ -42,5 +43,23 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(signKey, SignatureAlgorithm.HS256);
 
         return builder.compact();
+    }
+
+    @Override
+    public Claims getClaims(String token) {
+        if (token != null && !"".equals(token)) {
+
+            try {
+                byte[] secretByteKey = Base64.getDecoder().decode(secretKey);
+                Key signKey = new SecretKeySpec(secretByteKey, SignatureAlgorithm.HS256.getJcaName());
+                return Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token).getBody();
+            } catch (ExpiredJwtException e) {
+                // 만료됨
+            } catch (JwtException e) {
+                // 유효하지 않음
+            }
+        }
+        return  null;
+
     }
 }

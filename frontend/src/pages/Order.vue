@@ -12,21 +12,20 @@
             <span class="text-primary">구입 목록</span>
             <span
                 class="badge bg-primary rounded-pill">
-
+                {{ state.items.length }}
             </span></h4>
             <ul class="list-group mb-3">
-              <li class="list-group-item d-flex justify-content-between lh-sm"
-                 >
+              <li class="list-group-item d-flex justify-content-between lh-sm" v-for="(i, idx) in state.items" :key="idx">
                 <div>
-                  <h6 class="my-0"></h6>
+                  <h6 class="my-0">{{i.name}}</h6>
                 </div>
                 <span class="text-muted">
-
+                  {{ lib.getNumberFormatted(i.price - i.price * i.discountPer / 100) }}원
                 </span>
               </li>
             </ul>
             <h3 class="text-center total-price">
-
+                {{lib.getNumberFormatted(computedPrice)}}원
             </h3>
           </div>
           <div class="col-md-7 col-lg-8"><h4 class="mb-3">주문자 정보</h4>
@@ -43,7 +42,7 @@
                   <input type="text"
                          class="form-control"
                          id="address"
-                         >
+                  >
                 </div>
               </div>
               <hr class="my-4">
@@ -56,7 +55,7 @@
                   </label></div>
                 <div class="form-check">
                   <input id="bank" name="paymentMethod" type="radio" class="form-check-input"
-                         value="bank" >
+                         value="bank">
                   <label class="form-check-label" for="bank">무통장입금</label>
                 </div>
               </div>
@@ -64,9 +63,9 @@
               <input type="text"
                      class="form-control"
                      id="cc-name"
-                    >
+              >
               <hr class="my-4">
-              <button class="w-100 btn btn-primary btn-lg" >결제하기</button>
+              <button class="w-100 btn btn-primary btn-lg">결제하기</button>
             </div>
           </div>
         </div>
@@ -76,7 +75,7 @@
 </template>
 
 <script>
-import {reactive} from "vue";
+import {computed, reactive} from "vue";
 import axios from "axios";
 import lib from "@/scripts/lib";
 
@@ -93,9 +92,19 @@ export default {
       })
     };
 
+    const computedPrice = computed(()=>{
+      let result = 0;
+
+      for(let i of state.items) {
+        result += i.price - i.price * i.discountPer / 100;
+      }
+
+      return result;
+    })
+
     load();
 
-    return {state, lib}
+    return {state, lib, computedPrice}
   }
 }
 

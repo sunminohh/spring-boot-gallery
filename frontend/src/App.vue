@@ -20,17 +20,17 @@ export default {
   },
   setup() {
     const check = () => {
-      axios.get("/api/account/check").then(({data})=>{
+      axios.get("/api/account/check").then(({data}) => {
         console.log(data);
-          store.commit("setAccount", data || 0);
+        store.commit("setAccount", data || 0);
       })
     };
 
-    const  route = useRoute();
+    const route = useRoute();
 
     watch(route, () => {
       check();
-    });
+    })
   }
 }
 </script>

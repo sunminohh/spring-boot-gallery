@@ -15,9 +15,10 @@
                 {{ state.items.length }}
             </span></h4>
             <ul class="list-group mb-3">
-              <li class="list-group-item d-flex justify-content-between lh-sm" v-for="(i, idx) in state.items" :key="idx">
+              <li class="list-group-item d-flex justify-content-between lh-sm" v-for="(i, idx) in state.items"
+                  :key="idx">
                 <div>
-                  <h6 class="my-0">{{i.name}}</h6>
+                  <h6 class="my-0">{{ i.name }}</h6>
                 </div>
                 <span class="text-muted">
                   {{ lib.getNumberFormatted(i.price - i.price * i.discountPer / 100) }}원
@@ -25,7 +26,7 @@
               </li>
             </ul>
             <h3 class="text-center total-price">
-                {{lib.getNumberFormatted(computedPrice)}}원
+              {{ lib.getNumberFormatted(computedPrice) }}원
             </h3>
           </div>
           <div class="col-md-7 col-lg-8"><h4 class="mb-3">주문자 정보</h4>
@@ -35,13 +36,14 @@
                   <input type="text"
                          class="form-control"
                          id="username"
-
+                         v-model="state.form.name"
                   >
                 </div>
                 <div class="col-12"><label for="address" class="form-label">주소</label>
                   <input type="text"
                          class="form-control"
                          id="address"
+                         v-model="state.form.address"
                   >
                 </div>
               </div>
@@ -50,12 +52,12 @@
               <div class="my-3">
                 <div class="form-check">
                   <input id="card" name="paymentMethod" type="radio" class="form-check-input"
-                         value="card">
+                         value="card" v-model="state.form.payment">
                   <label class="form-check-label" for="card">신용카드
                   </label></div>
                 <div class="form-check">
                   <input id="bank" name="paymentMethod" type="radio" class="form-check-input"
-                         value="bank">
+                         value="bank" v-model="state.form.payment">
                   <label class="form-check-label" for="bank">무통장입금</label>
                 </div>
               </div>
@@ -63,9 +65,10 @@
               <input type="text"
                      class="form-control"
                      id="cc-name"
+                     v-model="state.form.cardNumber"
               >
               <hr class="my-4">
-              <button class="w-100 btn btn-primary btn-lg">결제하기</button>
+              <button class="w-100 btn btn-primary btn-lg" @click="submit()">결제하기</button>
             </div>
           </div>
         </div>
@@ -82,7 +85,14 @@ import lib from "@/scripts/lib";
 export default {
   setup() {
     const state = reactive({
-      items: []
+      items: [],
+      form: {
+        name: "",
+        address: "",
+        payment: "",
+        cardNumber: "",
+        items: ""
+      }
     })
 
     const load = () => {
@@ -92,10 +102,19 @@ export default {
       })
     };
 
-    const computedPrice = computed(()=>{
+    const submit = () => {
+      const args = JSON.parse(JSON.stringify(state.form));
+      args.items = JSON.stringify(state.items);
+
+      axios.post("/api/orders", args).then(()=>{
+        console.log('success');
+      })
+    }
+
+    const computedPrice = computed(() => {
       let result = 0;
 
-      for(let i of state.items) {
+      for (let i of state.items) {
         result += i.price - i.price * i.discountPer / 100;
       }
 
@@ -104,7 +123,7 @@ export default {
 
     load();
 
-    return {state, lib, computedPrice}
+    return {state, lib, computedPrice, submit}
   }
 }
 

@@ -1,5 +1,6 @@
 package org.sun.gallery.backend.controller;
 
+import jakarta.transaction.Transactional;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.sun.gallery.backend.dto.OrderDto;
 import org.sun.gallery.backend.entity.Order;
+import org.sun.gallery.backend.repository.CartRepository;
 import org.sun.gallery.backend.repository.OrderRepository;
 import org.sun.gallery.backend.service.JwtService;
 
@@ -20,6 +22,9 @@ public class OrderController {
     OrderRepository orderRepository;
 
     @Autowired
+    CartRepository cartRepository;
+
+    @Autowired
     JwtService jwtService;
 
     @GetMapping("/api/orders")
@@ -30,10 +35,12 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        List<Order> orders = orderRepository.findAll();
+        int memberId = jwtService.getId(token);
+        List<Order> orders = orderRepository.findByMemberIdOrderByIdDesc(memberId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping("/api/orders")
     public ResponseEntity pushOrder(
             @RequestBody OrderDto dto,
@@ -44,8 +51,10 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
+        int memberId = jwtService.getId(token);
         Order newOrder = new Order();
-        newOrder.setMemberId(jwtService.getId(token));
+
+        newOrder.setMemberId(memberId);
         newOrder.setName(dto.getName());
         newOrder.setAddress(dto.getAddress());
         newOrder.setPayment(dto.getPayment());
@@ -53,6 +62,7 @@ public class OrderController {
         newOrder.setItems(dto.getItems());
 
         orderRepository.save(newOrder);
+        cartRepository.deleteByMemberId(memberId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

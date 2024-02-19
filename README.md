@@ -1,1 +1,1 @@
-practice
+JPA, MariaDB, JWT study
